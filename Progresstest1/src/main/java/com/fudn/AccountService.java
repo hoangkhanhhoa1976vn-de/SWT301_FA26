@@ -122,15 +122,34 @@ public class AccountService {
     }
 
     public ResultCode disableAccount(String username) {
-        throw new UnsupportedOperationException("TODO");
+        if (isBlank(username)) {
+            return ResultCode.USER_NOT_FOUND;
+        }
+        Optional<Account> acc = findByUsername(username);
+        if (acc.isEmpty()) {
+            return ResultCode.USER_NOT_FOUND;
+        }
+        acc.get().setStatus(AccountStatus.DISABLED);
+        return ResultCode.SUCCESS;
     }
 
     public ResultCode unlockAccount(String username) {
-        throw new UnsupportedOperationException("TODO");
+        if (isBlank(username)) {
+            return ResultCode.USER_NOT_FOUND;
+        }
+        Optional<Account> acc = findByUsername(username);
+        if (acc.isEmpty()) {
+            return ResultCode.USER_NOT_FOUND;
+        }
+        acc.get().unlock();
+        return ResultCode.SUCCESS;
     }
 
     public boolean isLocked(String username) {
-        throw new UnsupportedOperationException("TODO");
+        if (isBlank(username)) {
+            return false;
+        }
+        return findByUsername(username).map(Account::isLocked).orElse(false);
     }
 
     private static boolean isBlank(String s) {
