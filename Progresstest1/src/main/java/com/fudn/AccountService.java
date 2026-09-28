@@ -82,7 +82,31 @@ public class AccountService {
     }
 
     public ResultCode login(String username, String password) {
-        throw new UnsupportedOperationException("TODO");
+        if (isBlank(username) || isBlank(password)) {
+            return ResultCode.INVALID_INPUT;
+        }
+        Account acc = accounts.get(key(username));
+        if (acc == null) {
+            return ResultCode.INVALID_CREDENTIALS;
+        }
+        if (acc.getStatus() == AccountStatus.DISABLED) {
+            return ResultCode.ACCOUNT_DISABLED;
+        }
+        if (acc.isLocked()) {
+            return ResultCode.ACCOUNT_LOCKED;
+        }
+
+        if (!PasswordHasher.matches(acc.getSalt(), password, acc.getCurrentPasswordHash())) {
+            acc.incrementFailedAttempts();
+            if (acc.getFailedAttempts() >= MAX_FAILED_ATTEMPTS) {
+                acc.lock();
+                return ResultCode.ACCOUNT_LOCKED;
+            }
+            return ResultCode.INVALID_CREDENTIALS;
+        }
+
+        acc.resetFailedAttempts();
+        return ResultCode.SUCCESS;
     }
 
     public ResultCode changePassword(String username, String oldPassword, String newPassword) {
