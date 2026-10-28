@@ -3,6 +3,7 @@ package tests;
 import org.junit.jupiter.api.*;
 import pages.LoginPage;
 import pages.SecureAreaPage;
+import utils.ConfigReader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,7 +32,7 @@ class LoginFlowTest extends BaseTest {
     @DisplayName("Secure page cannot be accessed without login")
     void secureRequiresLogin() {
         driver.manage().deleteAllCookies();
-        driver.get("https://the-internet.herokuapp.com/secure");
+        driver.get(ConfigReader.get("baseUrl", "https://the-internet.herokuapp.com") + "/secure");
         LoginPage loginPage = new LoginPage(driver);
         assertTrue(loginPage.getFlashMessage().contains("You must login to view the secure area!"));
     }
